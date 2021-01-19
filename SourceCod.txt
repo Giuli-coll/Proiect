@@ -20,3 +20,18 @@ char keys[ROWS][COLS] = {
    {'7','8','9','C'},
    {'*','0','#','D'}
 } ;
+
+
+// Connect keypad ROW0, ROW1, ROW2 and ROW3 to these Arduino pins.
+byte rowPins[ROWS] = { 16, 17, 2, 3 } ;
+// Connect keypad COL0, COL1 and COL2 to these Arduino pins.
+byte colPins[COLS] = { 4, 5, 6, 7 } ;
+
+//  Create the Keypad
+Keypad kpd = Keypad( makeKeymap(keys), rowPins, colPins, ROWS, COLS ) ;
+
+char password[16], string[16] ;
+int flag_h_setpassword = 1, flag_inputpassword = 0, flag_inputstring = 0, flag_opendoor = 1, flag_state = 0, flag_remoteopen = 0, flag_lockdown = 0 ;
+int count = 0, trial_count=0, pos = 0, state = 0 ;
+// flag_setpassword = flag for setting the password,
+// flag_stringinput = flag for taking input the string,
