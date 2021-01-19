@@ -1,0 +1,22 @@
+#include <LiquidCrystal.h>
+#include <Keypad.h>
+#include <Servo.h>
+
+// initialize the library with the numbers of the interface pins
+LiquidCrystal LCD( 8, 9, 10, 11, 12, 13 ) ;   //RS,EN,D4,D5,D6,D7
+
+Servo servo ;
+
+const int buzzerPin = 14 ;   // pin-14 = pin-A0
+const int servoPin = 15 ;   // pin-15 = pin A-1
+
+
+const byte ROWS = 4, COLS = 4 ;
+
+// Define the Keymap
+char keys[ROWS][COLS] = {
+   {'1','2','3','A'},
+   {'4','5','6','B'},
+   {'7','8','9','C'},
+   {'*','0','#','D'}
+} ;
