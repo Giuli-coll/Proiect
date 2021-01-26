@@ -73,3 +73,126 @@ void loop() {
       flag_state = 0 ;
    }
 
+ if( state == '0' ) {
+      trial_count = 4, CloseDoor() ;
+      if( flag_state == 0 ) {
+         Serial.println("SYSTEM LOCKED") ;
+         flag_state = 1 ;
+      }
+      flag_lockdown = 1 ;
+   }
+   else if( state == '1'  &&  flag_lockdown == 1 ) {
+      trial_count = 0 ;
+      LCD.clear() ;
+      LCD.setCursor(0,0) ;
+      LCD.print("LOCKDOWN LIFTED!") ;
+      LCD.setCursor(0,1) ;
+      LCD.print("Press * ...") ;
+      if( flag_state == 0 ) {
+         Serial.println("LOCKDOWN LIFTED") ;
+         flag_state = 1 ;
+      }
+      flag_lockdown = 0, state = 0 ;
+   }
+   else if( state == '2'  &&  flag_remoteopen == 0  &&  flag_lockdown == 0 ) {
+      LCD.clear() ;
+      LCD.print("RemotelyVERIFIED") ;
+      Serial.println("UNLOCKED !!") ;
+      trial_count = 0 ;
+      for( int i=0 ; i<3 ; ++i ) {
+         tone(buzzerPin, 500, 200) ;
+         delay(230) ;
+         tone(buzzerPin, 100, 200) ;
+         delay(300) ;
+         OpenDoor() ;
+      }
+      if( flag_state == 0 ) {
+         Serial.println("Remotely Unlocked !!") ;
+         flag_state = 1 ;
+      }
+      flag_remoteopen = 1 ;
+   }
+   else if( state == '3'  &&  flag_lockdown == 0 ) {
+      trial_count = 0, InitializeString(), H_EnterPassword() ;
+      if( flag_state == 0 ) {
+         Serial.println("Remotely Locked !!") ;
+         flag_state = 1 ;
+      }
+      flag_remoteopen = 0, state = 0 ;
+   }
+
+
+   // ##### Keypad #####
+
+   if( trial_count < 3 ) {
+
+      char key = kpd.getKey() ;   //storing pressed key value in a char
+
+      if( key != NO_KEY ) {
+         
+         if( flag_h_setpassword == 1 ) {
+            H_SetPassword() ;
+         }
+         if( key == '*' ) {
+            if( flag_inputpassword == 1 ) {
+               InitializePassword(), H_SetPassword() ;
+            }
+            else if( flag_inputstring = 1 ) {
+               InitializeString(), H_EnterPassword() ;
+            }
+         }
+         else if( key == '#' ) {
+            if( flag_inputpassword == 1  &&  count > 0 ) {
+               flag_inputpassword = 0 ;
+               password[count] = '\0' ;
+               H_EnterPassword() ;
+            } 
+            else if( flag_inputstring == 1  &&  count > 0 ) {
+               flag_inputstring = 0 ;
+               string[count] = '\0' ;
+               if( Compare_Password_and_String() == 1 ) {
+                  LCD.clear() ;
+                  LCD.print("***VERIFIED!!***") ;
+                  Serial.println("UNLOCKED !!") ;
+                  trial_count = 0 ;
+                  for( int i=0 ; i<3 ; ++i ) {
+                     tone(buzzerPin, 500, 200) ;
+                     delay(230) ;
+                     tone(buzzerPin, 100, 200) ;
+                     delay(300) ;
+                     OpenDoor() ;
+                  }
+               }
+               else {
+                  LCD.clear() ;
+                  LCD.print("Wrong Password !") ;
+                  Serial.println("Someone unsuccessfully attempted to open the lock !") ;
+                  ++trial_count ;
+                  tone(buzzerPin, 100, 1000) ;
+                  delay(1000) ;
+                  H_EnterPassword() ;
+               }
+            }
+         }
+         else if( flag_inputpassword == 1  ||  flag_inputstring == 1 ) {
+            LCD.print(key) ;
+            delay(100) ;
+            LCD.setCursor(count,1) ;
+            LCD.print('*') ;
+            if( flag_inputpassword == 1 )   password[count] = key ;
+            else if( flag_inputstring == 1 )   string[count] = key ;
+            ++count ;
+         }
+      }
+   }
+   else {
+      LCD.clear() ;
+      LCD.setCursor(0,0) ;
+      LCD.print("SYSTEM LOCKDOWN!") ;
+      tone(buzzerPin, 1000, 1000) ;
+      delay(1500) ;
+      flag_lockdown = 1 ;
+   }
+}
+
+
