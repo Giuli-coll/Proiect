@@ -196,3 +196,64 @@ void loop() {
 }
 
 
+void InitializePassword() {
+   for( int i=0 ; i<16 ; ++i )
+      password[i] = 0 ;
+}
+
+void InitializeString() {
+   for( int i=0 ; i<16 ; ++i )
+      string[i] = 1 ;
+}
+
+void H_SetPassword() {
+   LCD.clear() ;
+   LCD.setCursor(0,0) ;
+   LCD.print("Set a Password :") ;
+   LCD.setCursor(0,1) ;
+   flag_h_setpassword = 0 ;
+   flag_inputpassword = 1, count = 0 ;
+}
+
+void H_EnterPassword() {
+   CloseDoor() ;
+   LCD.clear() ;
+   LCD.setCursor(0,0) ;
+   LCD.print("Enter Password :") ;
+   LCD.setCursor(0,1) ;
+   flag_inputstring = 1, count = 0 ;
+}
+
+int Compare_Password_and_String() {
+   int i ;
+   for( i=0  ;  password[i]!='\0' && string[i]!='\0'  ;  ++i ) {
+      if( password[i] != string[i] )
+         return 0 ;
+   }
+   if( password[i] == '\0'  &&  string[i] == '\0' )
+      return 1 ;
+   else   return 0 ;
+}
+
+void OpenDoor() {
+   if( flag_opendoor == 1 )
+      return;
+   for( pos=15 ; pos<=100 ; ++pos ) {
+      servo.write(pos) ;
+      delay(15) ;
+   }
+   flag_opendoor = 1 ;
+}
+
+void CloseDoor()  {
+   if( flag_opendoor == 0 )
+      return;
+   for( pos=100 ; pos>=15; --pos ) {
+      servo.write(pos) ;
+      delay(15) ;
+   }
+   flag_opendoor = 0 ;
+}
+
+
+
